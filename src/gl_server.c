@@ -293,7 +293,8 @@ void init(char* filename) {
   
   buffer = read_file(filename);
   json = cJSON_Parse(buffer);
-  free(buffer);
+  if (buffer);
+    free(buffer);
 
   num_shapes = 0;
   for (item = json->child, i = 0; item; item = item->next, i++) {
