@@ -1,4 +1,4 @@
-/* Copyright 2013 Ka-Ping Yee
+/* Copyright 2016 Ka-Ping Yee
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License.  You may obtain a copy
@@ -12,9 +12,11 @@ specific language governing permissions and limitations under the License. */
 #include "cli.h"
 #include "opc.h"
 
+#define APA102_BRIGHTNESS 31  /* overall brightness level, 0 to 31 */
+
 static u8 buffer[4 + OPC_MAX_PIXELS_PER_MESSAGE * 4];
 
-void tcl_put_pixels(int fd, u8 buffer[], u16 count, pixel* pixels) {
+void apa102_put_pixels(int fd, u8* buffer, u16 count, pixel* pixels) {
   int i;
   pixel* p;
   u8* d;
@@ -26,8 +28,7 @@ void tcl_put_pixels(int fd, u8 buffer[], u16 count, pixel* pixels) {
   *d++ = 0;
   *d++ = 0;
   for (i = 0, p = pixels; i < count; i++, p++) {
-    flag = (p->r & 0xc0) >> 6 | (p->g & 0xc0) >> 4 | (p->b & 0xc0) >> 2;
-    *d++ = ~flag;
+    *d++ = 0xe0 + APA102_BRIGHTNESS;
     *d++ = p->b;
     *d++ = p->g;
     *d++ = p->r;
@@ -45,5 +46,5 @@ int main(int argc, char** argv) {
     spi_device_path = argv[3];
   }
   return opc_serve_main(spi_device_path, spi_speed_hz, port,
-                        tcl_put_pixels, buffer);
+                        apa102_put_pixels, buffer);
 }
